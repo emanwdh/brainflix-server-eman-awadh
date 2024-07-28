@@ -27,7 +27,7 @@ router.get("/", (req, res) => {
 router.get("/:id", (req, res) => {
     const videoData = readData();
     const requestedVideo = videoData.filter(video => video.id === req.params.id);
-    res.status(200).json(requestedVideo);
+    res.status(200).json(requestedVideo[0]);
 });
 
 router.post("/post", (req, res) => {
