@@ -48,6 +48,7 @@ router.post("/post", (req, res) => {
     likes,
     views,
     timestamp,
+    comments:[],
   };
   const videoData = readData();
   videoData.push(newVideo);
@@ -65,9 +66,20 @@ router.post("/comments/post", (req, res) => {
     timestamp,
   };
   const videoData = readData();
-  const videoIndex = videoData.findIndex((video) => video.id == videoID);
+  const videoIndex = videoData.findIndex((video) => video.id === videoID);
   videoData[videoIndex].comments.push(newComment);
   fs.writeFileSync(FILE_PATH, JSON.stringify(videoData));
   res.send(videoData[videoIndex].comments);
 });
+
+router.delete("/:videoId/comments/:id", (req, res)=> {
+    const videoData = readData();
+    const videoIndex = videoData.findIndex((video) => video.id == req.params.videoId);
+    const commentArray = videoData[videoIndex].comments;
+    const commentIndex = commentArray.findIndex((comment)=> comment.id == req.params.id);
+    commentArray.splice(commentIndex, 1);
+    fs.writeFileSync(FILE_PATH, JSON.stringify(videoData));
+    res.send(videoData[videoIndex].comments);
+
+})
 export default router;
