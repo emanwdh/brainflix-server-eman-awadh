@@ -27,6 +27,10 @@ router.get("/", (req, res) => {
     image: video.image,
   }));
   res.status(200).json(videoArray);
+
+  if(!videoArray){
+    res.status(404);
+  };
 });
 
 router.get("/:id", (req, res) => {
@@ -35,6 +39,10 @@ router.get("/:id", (req, res) => {
     (video) => video.id === req.params.id
   );
   res.status(200).json(requestedVideo[0]);
+
+  if(!requestedVideo) {
+    res.status(404);
+  };
 });
 
 router.post("/post", (req, res) => {
@@ -48,13 +56,17 @@ router.post("/post", (req, res) => {
     likes,
     views,
     timestamp,
-    comments:[],
+    comments: [],
   };
   const videoData = readData();
   videoData.push(newVideo);
   fs.writeFileSync(FILE_PATH, JSON.stringify(videoData));
 
   res.status(201);
+
+  if(!newVideo){
+    res.status(400);
+  };
 });
 
 router.post("/comments/post", (req, res) => {
@@ -70,16 +82,24 @@ router.post("/comments/post", (req, res) => {
   videoData[videoIndex].comments.push(newComment);
   fs.writeFileSync(FILE_PATH, JSON.stringify(videoData));
   res.send(videoData[videoIndex].comments);
+
+  if(!newComment){
+    res.status(400);
+  };
 });
 
-router.delete("/:videoId/comments/:id", (req, res)=> {
-    const videoData = readData();
-    const videoIndex = videoData.findIndex((video) => video.id == req.params.videoId);
-    const commentArray = videoData[videoIndex].comments;
-    const commentIndex = commentArray.findIndex((comment)=> comment.id == req.params.id);
-    commentArray.splice(commentIndex, 1);
-    fs.writeFileSync(FILE_PATH, JSON.stringify(videoData));
-    res.send(videoData[videoIndex].comments);
+router.delete("/:videoId/comments/:id", (req, res) => {
+  const videoData = readData();
+  const videoIndex = videoData.findIndex(
+    (video) => video.id == req.params.videoId
+  );
+  const commentArray = videoData[videoIndex].comments;
+  const commentIndex = commentArray.findIndex(
+    (comment) => comment.id == req.params.id
+  );
+  commentArray.splice(commentIndex, 1);
+  fs.writeFileSync(FILE_PATH, JSON.stringify(videoData));
+  res.status(204).send(videoData[videoIndex].comments);
+});
 
-})
 export default router;
